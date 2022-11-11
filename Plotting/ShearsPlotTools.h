@@ -12,6 +12,8 @@ public:
 
   void Set_Rebin(Int_t nRebin) { nRebin_ = nRebin; }
 
+  void Set_Tag_Canvas(TString tag) { tag_canvas_ = tag; }
+
   // -- customize
   void Set_Prefix(TString prefix) { prefix_ = prefix; }
 
@@ -46,10 +48,13 @@ public:
     if( canvasName.BeginsWith("h_") ) canvasName.ReplaceAll("h_", "c_");
     else                              canvasName = "c_" + canvasName;
 
+    if( !(tag_canvas_ == "") ) canvasName = canvasName + "_" + tag_canvas_;
+
     Bool_t isLogX = Get_IsLogX(histName);
 
     PlotTool::HistStackCanvaswRatio* canvas = new PlotTool::HistStackCanvaswRatio(canvasName, isLogX, 1);
-    canvas->SetTitle( TitleX(histName), "# events", "data/MC" );
+    canvas->Ratio_Reversed();
+    canvas->SetTitle( TitleX(histName), "# events", "MC/data" );
 
     canvas->RegisterData(h_data, "Data", kBlack);
 
@@ -61,13 +66,19 @@ public:
     }
     canvas->Register(h_signalMC, "Z/#gamma*#rightarrow#mu#mu", kGreen-8);
 
+    // canvas->SetRangeX(81, 101);
+
     canvas->SetAutoRangeY();
-    // canvas->SetRangeRatio(0.94, 1.06);
+    if( histName.Contains("mass_inc0jet") ) canvas->SetRangeRatio(0.94, 1.06);
+    if( histName.Contains("mass_wide_range_inc0jet") ) canvas->SetRangeRatio(0.7, 1.3);
+
+    canvas->ShowDataMCRatio();
 
     canvas->SetLegendColumn(2);
     canvas->SetLegendPosition(0.60, 0.80, 0.95, 0.95);
 
     canvas->Latex_CMSInternal();
+    canvas->Latex_LumiEnergy(lumi_/1000.0, 13);
 
     canvas->Draw();
 
@@ -91,6 +102,8 @@ private:
   vector<TString> vec_tag_bkgMC_;
   map<TString, vector<TString>> map_mergedTag_vecTag_;
 
+  TString tag_canvas_ = "";
+
   TString prefix_ = "dyjets-";
 
   Int_t nRebin_ = 1;
@@ -102,7 +115,15 @@ private:
   TString TitleX(TString histName) {
     TString title = "undefined";
     if( histName == "mass_inc0jet" ) title = "m(ll) [GeV]";
-    if( histName == "pt_inc0jet"   ) title = "p_{T}(ll) [GeV]";
+    if( histName == "mass_inc0jet_BB" ) title = "m(ll) [GeV] (Barrel-Barrel)";
+    if( histName == "mass_inc0jet_BE" ) title = "m(ll) [GeV] (Barrel-Endcap)";
+    if( histName == "mass_inc0jet_EE" ) title = "m(ll) [GeV] (Endcap-Endcap)";
+    if( histName == "mass_wide_range_inc0jet" ) title = "m(ll) [GeV]";
+    if( histName == "mass_wide_range_inc0jet_BB" ) title = "m(ll) [GeV] (Barrel-Barrel)";
+    if( histName == "mass_wide_range_inc0jet_BE" ) title = "m(ll) [GeV] (Barrel-Endcap)";
+    if( histName == "mass_wide_range_inc0jet_EE" ) title = "m(ll) [GeV] (Endcap-Endcap)";
+
+    if( histName == "pt_inc0jet" ) title = "p_{T}(ll) [GeV]";
 
     return title;
   }
@@ -127,6 +148,7 @@ private:
     TVectorD* job_info_average = nullptr;
     TFile* f = TFile::Open(fileName);
     f->GetObject("_job_info_average", job_info_average);
+    f->Close();
 
     return (*job_info_average)[1];
   }
@@ -172,6 +194,7 @@ private:
   Bool_t Get_IsLogX(TString histName) {
     Bool_t isLogX = kFALSE;
     if( histName == "pt_inc0jet" ) isLogX = kTRUE;
+    if( histName.Contains("mass_wide_range") ) isLogX = kTRUE;
 
     return isLogX;
   }
@@ -200,8 +223,7 @@ private:
 
 void Example() {
 
-
-  TString baseDir = "./file_MM_PtScaleOnly";
+  TString baseDir = "./file_MM";
   TString dataName = "data";
   TString signalMCName = "DYJets";
   // -- order: stack order (the last element will be on top of the stack)

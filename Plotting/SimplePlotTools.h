@@ -635,9 +635,8 @@ public:
     setLatexCMSInternal_ = kTRUE;
   }
 
-  void Latex_CMSPre(Double_t lumi, Int_t energy)
+  void Latex_LumiEnergy(Double_t lumi, Int_t energy)
   {
-    Latex_CMSPre();
     setLatexLumiEnergy_ = kTRUE;
     lumi_ = lumi;
     energy_ = energy;
@@ -735,9 +734,9 @@ public:
     latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Internal}}}");
   }
 
-  void DrawLatex_CMSPreLumiEnergy()
+  void DrawLatex_LumiEnergy()
   {
-    DrawLatex_CMSPre();
+    // DrawLatex_CMSPre();
     latex_.DrawLatexNDC(0.70, 0.96, "#font[42]{#scale[0.7]{"+TString::Format("%.1lf fb^{-1} (%d TeV)", lumi_, energy_)+"}}");
   }
 
@@ -797,14 +796,10 @@ public:
 
   void DrawLatexAll()
   {
-    if( setLatexCMSPre_ )
-    {
-      if( setLatexLumiEnergy_ ) DrawLatex_CMSPreLumiEnergy();
-      else                      DrawLatex_CMSPre();
-    }
+    if( setLatexLumiEnergy_ ) DrawLatex_LumiEnergy();
 
+    if( setLatexCMSPre_ ) DrawLatex_CMSPre();
     if( setLatexCMSSim_ ) DrawLatex_CMSSim();
-
     if( setLatexCMSInternal_ ) DrawLatex_CMSInternal();
 
     if( setLatexInfo_ )
@@ -1068,6 +1063,8 @@ public:
   Bool_t showDataMCRatio_ = kFALSE;
   Double_t overallRatio_ = -1;
 
+  Bool_t ratioReversed_ = kFALSE;
+
 
   HistStackCanvaswRatio()
   {
@@ -1166,6 +1163,9 @@ public:
     showDataMCRatio_ = flag;
   }
 
+  void Ratio_Reversed(Bool_t flag=kTRUE) { ratioReversed_ = flag; }
+
+
 
 private:
   void SetMCStack(TLegend *legend)
@@ -1236,13 +1236,17 @@ private:
     }
 
     h_ratio_dataToStack_ = (TH1D*)h_data->Clone();
-    h_ratio_dataToStack_->Divide( h_data, h_totStack );
+    if( ratioReversed_ )
+      h_ratio_dataToStack_->Divide( h_totStack, h_data ); // -- MC/data
+    else
+      h_ratio_dataToStack_->Divide( h_data, h_totStack ); // -- data/MC
 
     if( showDataMCRatio_ )
     {
       Double_t entry_data  = CountEntry_GivenRange(h_data);
       Double_t entry_stack = CountEntry_GivenRange(h_totStack);
-      overallRatio_ = entry_data / entry_stack;
+      if( ratioReversed_ ) overallRatio_ = entry_stack / entry_data;
+      else                 overallRatio_ = entry_data / entry_stack;
     }
   }
 

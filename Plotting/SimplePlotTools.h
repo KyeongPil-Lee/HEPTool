@@ -12,31 +12,26 @@
 #include <TF1.h>
 #include <TGraphAsymmErrors.h>
 #include <THStack.h>
-
+#include <TSystem.h>
 #include <vector>
 
 namespace PlotTool {
 
 TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "" )
 {
-  TH1::AddDirectory(kFALSE);
+  if( gSystem->AccessPathName(fileName) ) {
+    cout << "*** [PlotTool::Get_Hist] fileName = " << fileName << ": not found ***" << endl;
+    return nullptr;
+  }
 
   TFile* f_input = TFile::Open( fileName );
-  if( f_input == nullptr )
-  {
-    cout << "[PlotTool::Get_Hist] fileName = " << fileName << ": not found" << endl;
+  if( !f_input->GetListOfKeys()->Contains(histName) ) {
+    cout << "*** [PlotTool::Get_Hist] histName = " << histName << ": not found ***" << endl;
     return nullptr;
   }
 
-  TH1D* h_test = (TH1D*)f_input->Get(histName);
-  if( h_test == nullptr )
-  {
-    cout << "[PlotTool::Get_Hist] histName = " << histName << ": not found" << endl;
-    return nullptr;
-  }
-
-  TH1D* h_temp = (TH1D*)h_test->Clone();
-
+  TH1::AddDirectory(kFALSE);
+  TH1D* h_temp = (TH1D*)f_input->Get(histName);
   if( histName_new != "" )
     h_temp->SetName( histName_new );
 
@@ -47,9 +42,18 @@ TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "" )
 
 TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" )
 {
+  if( gSystem->AccessPathName(fileName) ) {
+    cout << "*** [PlotTool::Get_Hist2D] fileName = " << fileName << ": not found ***" << endl;
+    return nullptr;
+  }
   TH1::AddDirectory(kFALSE);
 
   TFile* f_input = TFile::Open( fileName );
+  if( !f_input->GetListOfKeys()->Contains(histName) ) {
+    cout << "*** [PlotTool::Get_Hist2D] histName = " << histName << ": not found ***" << endl;
+    return nullptr;
+  }
+
   TH2D* h_temp = (TH2D*)f_input->Get(histName)->Clone();
   if( histName_new != "" )
     h_temp->SetName( histName_new );
@@ -62,7 +66,17 @@ TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" )
 
 TGraphAsymmErrors* Get_Graph(TString fileName, TString graphName, TString graphName_New = "" )
 {
+  if( gSystem->AccessPathName(fileName) ) {
+    cout << "*** [PlotTool::Get_Graph] fileName = " << fileName << ": not found ***" << endl;
+    return nullptr;
+  }
+
   TFile *f_input = TFile::Open( fileName );
+  if( !f_input->GetListOfKeys()->Contains(graphName) ) {
+    cout << "*** [PlotTool::Get_Graph] graphName = " << graphName << ": not found ***" << endl;
+    return nullptr;
+  }
+  
   TGraphAsymmErrors* g_temp = (TGraphAsymmErrors*)f_input->Get(graphName)->Clone();
   if( graphName_New != "" )
     g_temp->SetName( graphName_New );

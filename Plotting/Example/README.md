@@ -15,5 +15,6 @@ root -l -b -q Example_GraphCanvas.cxx
 
 
 ## Example results
-![Example: HistCanvas](c_HistCanvas.png)
+### HistCanvas
+![](c_HistCanvas.png)
 

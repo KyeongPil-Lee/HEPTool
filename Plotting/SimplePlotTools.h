@@ -552,6 +552,8 @@ public:
 
   Bool_t simpleLogLabel_ = kFALSE;
 
+  TString format_ = ".pdf";
+
   CanvasBase()
   {
     Init();
@@ -672,6 +674,10 @@ public:
   }
 
   void SetSimpleLogLabel( Bool_t flag = kTRUE ) { simpleLogLabel_ = flag; }
+
+  TString GetCanvasName() { return canvasName_; }
+
+  void SetFormat(TString format) { format_ = format; };
   
   // -- implemented later
   virtual void Draw( TString drawOp )
@@ -908,8 +914,8 @@ public:
 
     DrawLatexAll();
 
-    if( setSavePath_ ) c_->SaveAs(savePath_);
-    else               c_->SaveAs(".pdf");
+    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else               c_->SaveAs(format_);
   }
 
   // -- for auto adjustment of Y-range
@@ -921,8 +927,8 @@ public:
     Double_t globalMax = -9999;
     for(const auto& histInfo : vec_histInfo )
     {
-      Double_t localMin = histInfo.h->GetMinimum();
-      Double_t localMax = histInfo.h->GetMaximum();
+      Double_t localMin = histInfo.h->GetBinContent(histInfo.h->GetMinimumBin());
+      Double_t localMax = histInfo.h->GetBinContent(histInfo.h->GetMaximumBin());
       if( localMin < globalMin ) globalMin = localMin;
       if( localMax > globalMax ) globalMax = localMax;
     }
@@ -1025,8 +1031,8 @@ public:
     TF1 *f_line;
     PlotTool::DrawLine(f_line);
 
-    if( setSavePath_ ) c_->SaveAs(savePath_);
-    else               c_->SaveAs(".pdf");
+    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else               c_->SaveAs(format_);
   }
 
   void CalcRatioHist()
@@ -1154,8 +1160,8 @@ public:
       latex_ratio.DrawLatexNDC(0.16, 0.85, "#font[42]{#scale[1.5]{#color[2]{"+ratioInfo+"}}}");
     }
 
-    if( setSavePath_ ) c_->SaveAs(savePath_);
-    else               c_->SaveAs(".pdf");
+    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else               c_->SaveAs(format_);
   }
 
   void ShowDataMCRatio(Bool_t flag=kTRUE)
@@ -1342,8 +1348,8 @@ public:
 
     DrawLatexAll();
 
-    if( setSavePath_ ) c_->SaveAs(savePath_);
-    else               c_->SaveAs(".pdf");
+    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else               c_->SaveAs(format_);
   }
 };
 
@@ -1444,8 +1450,8 @@ public:
     TF1 *f_line;
     PlotTool::DrawLine(f_line);
 
-    if( setSavePath_ ) c_->SaveAs(savePath_);
-    else               c_->SaveAs(".pdf");
+    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else               c_->SaveAs(format_);
   }
 
   void CalcRatioGraph()
@@ -1612,8 +1618,8 @@ public:
 
     DrawLatexAll();
 
-    if( setSavePath_ ) c_->SaveAs(savePath_);
-    else               c_->SaveAs(".pdf");
+    if( setSavePath_ ) c_->SaveAs(savePath_+"/"+canvasName_+format_);
+    else               c_->SaveAs(format_);
   }
 
 private:

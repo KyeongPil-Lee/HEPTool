@@ -18,3 +18,19 @@ root -l -b -q Example_GraphCanvas.cxx
 ### HistCanvas
 ![](c_HistCanvas.png)
 
+### HistCanvaswRatio
+![](c_HistCanvaswRatio.png)
+
+### HistStackCanvaswRatio
+![](c_HistStackCanvaswRatio.png)
+
+### Hist2DCanvas
+![](c_Hist2DCanvas.png)
+
+### GraphCanvas
+![](c_GraphCanvas.png)
+
+### GraphCanvaswRatio
+![](c_GraphCanvaswRatio.png)
+
+

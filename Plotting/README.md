@@ -11,6 +11,29 @@
 * `GraphCanvas`
 * `GraphCanvaswRatio`
 
+Basic structure is same for all above classes:
+```
+TString canvasName = "c_variable";
+PlotTool::HistCanvas* canvas = new PlotTool::HistCanvas(canvasName, 0, 0);
+canvas->SetTitle("var", "# entry");
+
+canvas->Register(h1, "1st hist", kBlack);
+canvas->Register(h2, "2nd hist", kRed);
+
+canvas->SetAutoRangeY();
+// canvas->SetRangeX(minX, maxX);
+// canvas->SetRangeY(minY, maxY);
+
+canvas->Latex_CMSInternal();
+canvas->Latex_LumiEnergy(10.0, 13);
+canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Test}}");
+
+canvas->Draw();
+```
+<br>
+Example codes are available in `Example` directory.
+<br>
+
 ### Functions
 * `TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "")`
   * Get a 1D histogram in a .root file

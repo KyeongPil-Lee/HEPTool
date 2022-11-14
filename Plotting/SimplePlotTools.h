@@ -13,22 +13,31 @@
 #include <TGraphAsymmErrors.h>
 #include <THStack.h>
 #include <TSystem.h>
+#include <TApplication.h>
 #include <vector>
 
 namespace PlotTool {
 
-TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "" )
-{
+// -- terminate ROOT if the given file or object is not found
+// -- return TFile* if it pass the check
+TFile* ExistenceCheck(TString functionName, TString fileName, TString objectName) {
   if( gSystem->AccessPathName(fileName) ) {
-    cout << "*** [PlotTool::Get_Hist] fileName = " << fileName << ": not found ***" << endl;
-    return nullptr;
+    cout << "*** [PlotTool::" << functionName << "] fileName = [" << fileName << "]: not found ***" << endl;
+    gApplication->Terminate();
   }
 
   TFile* f_input = TFile::Open( fileName );
-  if( !f_input->GetListOfKeys()->Contains(histName) ) {
-    cout << "*** [PlotTool::Get_Hist] histName = " << histName << ": not found ***" << endl;
-    return nullptr;
+  if( !f_input->GetListOfKeys()->Contains(objectName) ) {
+    cout << "*** [PlotTool::" << functionName << "] objectName = [" << objectName << "]: not found in [" << fileName << "] ***" << endl;
+    gApplication->Terminate();
   }
+
+  return f_input;
+}
+
+TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "" )
+{
+  TFile* f_input = ExistenceCheck("Get_Hist", fileName, histName);
 
   TH1::AddDirectory(kFALSE);
   TH1D* h_temp = (TH1D*)f_input->Get(histName);
@@ -42,17 +51,7 @@ TH1D* Get_Hist(TString fileName, TString histName, TString histName_new = "" )
 
 TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" )
 {
-  if( gSystem->AccessPathName(fileName) ) {
-    cout << "*** [PlotTool::Get_Hist2D] fileName = " << fileName << ": not found ***" << endl;
-    return nullptr;
-  }
-  TH1::AddDirectory(kFALSE);
-
-  TFile* f_input = TFile::Open( fileName );
-  if( !f_input->GetListOfKeys()->Contains(histName) ) {
-    cout << "*** [PlotTool::Get_Hist2D] histName = " << histName << ": not found ***" << endl;
-    return nullptr;
-  }
+  TFile* f_input = ExistenceCheck("Get_Hist2D", fileName, histName);
 
   TH2D* h_temp = (TH2D*)f_input->Get(histName)->Clone();
   if( histName_new != "" )
@@ -66,16 +65,7 @@ TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" )
 
 TGraphAsymmErrors* Get_Graph(TString fileName, TString graphName, TString graphName_New = "" )
 {
-  if( gSystem->AccessPathName(fileName) ) {
-    cout << "*** [PlotTool::Get_Graph] fileName = " << fileName << ": not found ***" << endl;
-    return nullptr;
-  }
-
-  TFile *f_input = TFile::Open( fileName );
-  if( !f_input->GetListOfKeys()->Contains(graphName) ) {
-    cout << "*** [PlotTool::Get_Graph] graphName = " << graphName << ": not found ***" << endl;
-    return nullptr;
-  }
+  TFile* f_input = ExistenceCheck("Get_Graph", fileName, graphName);
   
   TGraphAsymmErrors* g_temp = (TGraphAsymmErrors*)f_input->Get(graphName)->Clone();
   if( graphName_New != "" )

@@ -5,14 +5,16 @@ import subprocess
 import os
 import sys
 import time
+import argparse
 
-if len(sys.argv) == 2:
-    crabDirBase = sys.argv[1]
-else:
-    print "usage: python CRAB_Status.py <CRAB directory>"
-    sys.exit()
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--directory', default="CRABDir")
+parser.add_argument('-v', '--verboseErrors', action='store_true', default=False)
+args = parser.parse_args()
+print(args.directory, args.verboseErrors)
 
-print "CRAB directory: ", crabDirBase
+print "CRAB base directory: ", args.directory
+print "VerboseErrors: ", args.verboseErrors
 
 proxy = subprocess.check_output(['voms-proxy-info', '-p']).strip()
 if proxy == "":
@@ -22,7 +24,7 @@ if proxy == "":
 
 print "proxy : ", proxy
 
-FileList = os.listdir("./%s" % crabDirBase)
+FileList = os.listdir("./%s" % args.directory)
 List_CRABDir = []
 print "available crabDir list: "
 for filename in FileList:
@@ -41,10 +43,13 @@ theTime = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
 f_log = open( "CRABStatusLog_v%s.txt" % (theTime), 'w' )
 
 for crabDir in List_CRABDir:
-    crabDirPath = "%s/%s" % (crabDirBase, crabDir)
+    crabDirPath = "%s/%s" % (args.directory, crabDir)
     # outputDir = "v" + crabDir.split("_v")[1]
     
-    cmd = 'crab status --verboseErrors "'+crabDirPath+'" --proxy='+proxy
+    cmd = 'crab status "'+crabDirPath+'" --proxy='+proxy
+    if args.verboseErrors:
+        cmd = cmd + " --verboseErrors"
+
     result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     (stdout, stderr) = result.communicate()
     print "#" * 100

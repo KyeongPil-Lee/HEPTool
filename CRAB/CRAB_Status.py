@@ -1,6 +1,102 @@
-# -- usage: python CRAB_Status.py <CRAB directory>
+# -- usage: python CRAB_Status.py -v -d <CRAB directory>
+# -- reference: https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRABClientLibraryAPI
+
+class CRABStatusInfo:
+    def __init__(self):
+        self.status = ""
+        self.jobsPerStatus = {}
+        self.crabDir = ""
+        self.nTotJob = 0
+
+    def __init__(self, crabDir, crabInfo):
+        self.status = crabInfo["status"]
+        self.jobsPerStatus = crabInfo["jobsPerStatus"]
+        self.crabDir = crabDir
+        self.nTotJob = len(crabInfo["jobList"])
+
+    def CRABDir(self):
+        return self.crabDir
+
+    def Status(self):
+        return self.Status
+
+    def NeedResubmit(self):
+        flag = False
+        if self.nFailedJob() != 0:
+            flag = True
+
+        return flag
+
+    def IsStatus(self, status):
+        flag = False
+        if self.status == status:
+            flag = True
+
+        return flag
+
+    def IsCompleted(self):
+        flag = False
+        if self.IsStatus("COMPLETED") and self.nFailedJob() == 0:
+            flag = True
+
+        return flag
+
+    def IsUnknown(self):
+        return self.IsStatus("UNKNOWN")
+
+    def nStatusJob(self, status):
+        nJob = 0
+        if status not in self.jobsPerStatus.keys():
+            nJob = 0
+        else:
+            nJob = self.jobsPerStatus[status]
+
+        return nJob
+
+    def nFailedJob(self):
+        return self.nStatusJob("failed")
+
+    def nFinishedJob(self):
+        return self.nStatusJob("finished")
+
+    def nRunningJob(self):
+        return self.nStatusJob("running")
+
+    def fracStatusJob(self, status):
+        frac = 0
+        nStatusJob = self.nStatusJob(status)
+
+        if self.nTotJob == 0:
+            print("self.nTotJob == 0 ... something went wrong\n")
+            sys.exit()
+
+        frac = float(nStatusJob) / float(self.nTotJob)
+        return frac
+
+    def fracFailedJob(self):
+        return self.fracStatusJob("failed")
+
+    def fracFinishedJob(self):
+        return self.fracStatusJob("finished")
+
+    def fracRunningJob(self):
+        return self.fracStatusJob("running")
+
+
+
 
 #!/usr/bin/env python
+try:
+    import CRABClient
+    from CRABAPI.RawCommand import crabCommand
+except ImportError as ex:
+    print("*"*50)
+    print("Problem with status encountered: %s" % ex)
+    print("run the command:")
+    print("source /cvmfs/cms.cern.ch/common/crab-setup.sh")
+    print("*"*50)
+    sys.exit()
+
 import subprocess
 import os
 import sys
@@ -11,100 +107,111 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--directory', default="CRABDir")
 parser.add_argument('-v', '--verboseErrors', action='store_true', default=False)
 args = parser.parse_args()
-print(args.directory, args.verboseErrors)
-
-print "CRAB base directory: ", args.directory
-print "VerboseErrors: ", args.verboseErrors
 
 proxy = subprocess.check_output(['voms-proxy-info', '-p']).strip()
 if proxy == "":
-    print "proxy path is not found: please run the command first:"
-    print "voms-proxy-init --voms"
+    print("proxy path is not found: please run the command first:")
+    print("voms-proxy-init --voms")
     sys.exit()
 
-print "proxy : ", proxy
+print("#"*100)
+print("CRAB base directory: %s" % args.directory)
+print("VerboseErrors: %s" % args.verboseErrors)
+print("proxy : %s" % proxy)
+print("#"*100)
+print("\n")
 
-FileList = os.listdir("./%s" % args.directory)
+list_listdir = os.listdir("./%s" % args.directory)
 List_CRABDir = []
 print "available crabDir list: "
-for filename in FileList:
+for filename in list_listdir:
     if "crab_" in filename:
         print "'"+filename+"',"
         List_CRABDir.append( filename )
 
 List_CRABDir.sort()
 
-ResubmtCMD = []
-CompletedList = []
-UnknownList = []
-OthersList = []
+# theTime = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
+# logFileName = "CRABStatusLog_v%s.txt" % (theTime)
+# f_log = open( logFileName, 'w' )
+# fullLog = ""
 
-theTime = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
-f_log = open( "CRABStatusLog_v%s.txt" % (theTime), 'w' )
+list_resubmit = []
+list_completed = []
+list_unknown = []
+list_others = []
+
+options = ""
+if args.verboseErrors:
+    options = "--verboseErrors"
 
 for crabDir in List_CRABDir:
-    crabDirPath = "%s/%s" % (args.directory, crabDir)
-    # outputDir = "v" + crabDir.split("_v")[1]
-    
-    cmd = 'crab status "'+crabDirPath+'" --proxy='+proxy
-    if args.verboseErrors:
-        cmd = cmd + " --verboseErrors"
+    crabDirPath = os.path.join(args.directory, crabDir)
 
-    result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-    (stdout, stderr) = result.communicate()
-    print "#" * 100
-    print cmd+'\n'
-    print "[stdout]"
-    print stdout
-    print "[stderr]"
-    print stderr
-    print "#" * 100 +'\n\n'
+    crabInfo = crabCommand("status", dir=crabDirPath, *options)
 
-    f_log.write("#" * 100)
-    f_log.write('\n')
-    f_log.write(cmd+'\n')
-    f_log.write("[stdout]\n")
-    f_log.write(stdout)
-    f_log.write("[stderr]\n")
-    f_log.write(stderr)
-    f_log.write('\n')
-    f_log.write("#" * 100 +'\n\n\n')
+    statusInfo = CRABStatusInfo(crabDirPath, crabInfo)
 
-    if "jobs failed with" in stdout or "jobs failed in" in stdout:
-        ResubmtCMD += ['crab resubmit '+crabDirPath+' --proxy='+proxy]
-
-    elif "COMPLETED" in stdout:
-        CompletedList.append( crabDir )
-
-    elif "UNKNOWN" in stdout:
-        UnknownList.append( crabDir )
-
+    if statusInfo.NeedResubmit():
+        list_resubmit.append( statusInfo )
+    elif statusInfo.IsCompleted():
+        list_completed.append( statusInfo )
+    elif statusInfo.IsUnknown():
+        list_unknown.append( statusInfo )
     else:
-        OthersList.append( crabDir )
+        list_others.append( statusInfo )
 
-print "[Completed list]"
-f_log.write("[Completed list]\n")
-for one in CompletedList:
-    print "'"+one+"',"
-    f_log.write("'"+one+"',"+"\n")
 
-print "[Unknown list]"
-f_log.write("[Unknown list]\n")
-for one in UnknownList:
-    print "'"+one+"',"
-    f_log.write("'"+one+"',"+"\n")
+#     # -- for log
+#     cmd = 'crab status "'+crabDirPath+'" --proxy='+proxy
+#     if args.verboseErrors:
+#         cmd = cmd + " --verboseErrors"
+#     result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+#     (stdout, stderr) = result.communicate()
+#     thisLog = """
+# {line_}
+# {cmd_}
+# "[stdout]"
+# {stdout_}
+# "[stderr]"
+# {stderr_}
+# {line_}
 
-print "[Others]"
-f_log.write("[Others]\n")
-for one in OthersList:
-    print "'"+one+"',"
-    f_log.write("'"+one+"',"+"\n")
+# """.format(line_="#"*100, cmd_=cmd, stdout_=stdout, stderr_=stderr)
+    
+#     fullLog += thisLog
 
-print "\n[CRAB jobs which should be resubmitted]"
-f_log.write("\n[CRAB jobs which should be resubmitted]\n")
-for theCMD in ResubmtCMD:
-    print theCMD
-    f_log.write(theCMD+'\n')
 
-f_log.write("\n")
-f_log.close()
+fullSummary = ""
+
+fullSummary += "[Completed list]\n"
+for statusInfo in list_completed:
+    fullSummary += "%s\n" % statusInfo.crabDir
+fullSummary += "\n"
+
+fullSummary += "[Unknown list]\n"
+for statusInfo in list_unknown:
+    fullSummary += "%s\n" % statusInfo.crabDir
+fullSummary += "\n"
+
+fullSummary += "[Others list]\n"
+for statusInfo in list_others:
+    comment = "# -- nFinished = %d (%.1f%%), nRunning = %d (%.1f%%)" % (statusInfo.nFinishedJob(), statusInfo.fracFinishedJob()*100, statusInfo.nRunningJob(), statusInfo.fracRunningJob()*100)
+    fullSummary += "%s %s\n" % (statusInfo.crabDir, comment)
+fullSummary += "\n"
+
+fullSummary += "[CRAB jobs that should be resubmitted]\n"
+for statusInfo in list_resubmit:
+    cmd = 'crab resubmit '+statusInfo.crabDir+' --proxy='+proxy
+    comment = "# -- nFinished = %d (%.1f%%), nFailed = %d (%.1f%%)" % (statusInfo.nFinishedJob(), statusInfo.fracFinishedJob()*100, statusInfo.nFailedJob(), statusInfo.fracFailedJob()*100)
+    fullSummary += "%s %s\n" % (cmd, comment)
+fullSummary += "\n"
+
+print(fullSummary)
+
+# -- write in the file
+# f_log.write(fullLog)
+# f_log.write(fullSummary)
+# print("To check the full log:")
+# print("cat %s" % logFileName)
+# f_log.close()

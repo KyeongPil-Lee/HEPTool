@@ -122,14 +122,14 @@ print("#"*100)
 print("\n")
 
 list_listdir = os.listdir("./%s" % args.directory)
-List_CRABDir = []
+list_CRABDir = []
 print "available crabDir list: "
 for filename in list_listdir:
     if "crab_" in filename:
         print "'"+filename+"',"
-        List_CRABDir.append( filename )
+        list_CRABDir.append( filename )
 
-List_CRABDir.sort()
+list_CRABDir.sort()
 
 # theTime = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
 # logFileName = "CRABStatusLog_v%s.txt" % (theTime)
@@ -145,7 +145,7 @@ options = ""
 if args.verboseErrors:
     options = "--verboseErrors"
 
-for crabDir in List_CRABDir:
+for crabDir in list_CRABDir:
     crabDirPath = os.path.join(args.directory, crabDir)
 
     crabInfo = crabCommand("status", dir=crabDirPath, *options)

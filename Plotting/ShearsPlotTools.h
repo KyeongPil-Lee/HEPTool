@@ -1,5 +1,10 @@
 #include "SimplePlotTools.h"
 
+#define LUMI_16pre 19520.0
+#define LUMI_16post 16810.0
+#define LUMI_17 41480.0
+#define LUMI_18 59830.0
+
 class ShearsPlotTool {
 public:
 
@@ -234,7 +239,7 @@ void Example() {
     ShearsPlotTool* tool = new ShearsPlotTool();
     tool->Set_BaseDir(baseDir); // -- the directory with the shears output file
 
-    tool->Set_Data(dataName, 19520.0); // -- data tag
+    tool->Set_Data(dataName, LUMI_16pre); // -- data tag
 
     tool->Set_SignalMC(signalMCName); // -- signal tag
 

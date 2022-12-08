@@ -247,6 +247,8 @@ void Example() {
     tool->Register_MergedMC("singleTop", {"ST_s-channel", "ST_t-channel_antitop", "ST_t-channel_top", "ST_tW_antitop", "ST_tW_top"});
     tool->Set_BackgroundMC(vec_bkgMCName); // -- vector of background tags
 
+    // tool->Set_Tag_Canvas("tag") // -- add additional tag on the canvas name
+
     // tool->Set_Rebin(3);
 
     tool->Produce(histName);

@@ -53,6 +53,7 @@ TH2D* Get_Hist2D(TString fileName, TString histName, TString histName_new = "" )
 {
   TFile* f_input = ExistenceCheck("Get_Hist2D", fileName, histName);
 
+  TH2::AddDirectory(kFALSE);
   TH2D* h_temp = (TH2D*)f_input->Get(histName)->Clone();
   if( histName_new != "" )
     h_temp->SetName( histName_new );

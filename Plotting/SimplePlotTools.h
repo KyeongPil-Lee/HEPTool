@@ -559,6 +559,8 @@ public:
 
   TString format_ = ".pdf";
 
+  Bool_t removeRatioErr_ = kFALSE;
+
   CanvasBase()
   {
     Init();
@@ -661,6 +663,14 @@ public:
     latexInfos_.push_back( latexInfo );
   }
 
+  void RegisterLatex( Double_t x, Double_t y, Double_t fontType, Double_t fontsize, TString text )
+  {
+    setLatexInfo_ = kTRUE;
+    TString content = TString::Format("#font[%.2lf]{#scale[%.2lf]{%s}}", fontType, fontsize, text.Data());
+    LatexInfo latexInfo{x, y, content};
+    latexInfos_.push_back( latexInfo );
+  }
+
   void SetMarkerSize( Double_t size )
   {
     setMarkerSize_ = kTRUE;
@@ -683,6 +693,8 @@ public:
   TString GetCanvasName() { return canvasName_; }
 
   void SetFormat(TString format) { format_ = format; };
+
+  void RemoveRatioError(Bool_t flag = kTRUE) { removeRatioErr_ = flag; }
   
   // -- implemented later
   virtual void Draw( TString drawOp )
@@ -735,30 +747,25 @@ public:
     setAutoRangeY_ = kFALSE;
   }
 
-  void DrawLatex_CMSPre()
-  {
+  void DrawLatex_CMSPre() {
     latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Preliminary}}}");
   }
 
-  void DrawLatex_CMSInternal()
-  {
+  void DrawLatex_CMSInternal() {
     latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Internal}}}");
   }
 
-  void DrawLatex_LumiEnergy()
-  {
+  void DrawLatex_LumiEnergy() {
     // DrawLatex_CMSPre();
     latex_.DrawLatexNDC(0.70, 0.96, "#font[42]{#scale[0.7]{"+TString::Format("%.1lf fb^{-1} (%d TeV)", lumi_, energy_)+"}}");
   }
 
-  void DrawLatex_CMSSim()
-  {
+  void DrawLatex_CMSSim() {
     latex_.DrawLatexNDC(0.13, 0.96, "#font[62]{CMS}#font[42]{#it{#scale[0.8]{ Simulation}}}");
     latex_.DrawLatexNDC(0.85, 0.96, "#font[42]{#scale[0.7]{13 TeV}}");
   }
 
-  void SetCanvas_Square()
-  {
+  void SetCanvas_Square() {
     c_ = new TCanvas(canvasName_, "", 800, 800);
     c_->cd();
     
@@ -773,8 +780,7 @@ public:
       c_->SetLogy();
   }
 
-  void SetCanvas_Ratio()
-  {
+  void SetCanvas_Ratio() {
     c_ = new TCanvas(canvasName_, "", 800, 800);
     c_->cd();
 
@@ -805,8 +811,7 @@ public:
     if( setRatioLogY_ ) bottomPad_->SetLogy();
   }
 
-  void DrawLatexAll()
-  {
+  void DrawLatexAll() {
     if( setLatexLumiEnergy_ ) DrawLatex_LumiEnergy();
 
     if( setLatexCMSPre_ ) DrawLatex_CMSPre();
@@ -1057,10 +1062,19 @@ public:
       TH1D* h_ratioTemp = (TH1D*)h_ref->Clone();
       h_ratioTemp->Divide( h_target, h_ref );
 
+      if( removeRatioErr_ ) RemoveError_Hist(h_ratioTemp);
+
       HistInfo histInfoRatio{ h_ratioTemp, legend, color };
       histInfoRatios_.push_back( histInfoRatio );
     }
   }
+private:
+  void RemoveError_Hist(TH1D* h) {
+    for(Int_t i=0; i<h->GetNbinsX(); i++) {
+      h->SetBinError(i+1, 0);
+    }
+  }
+
 };
 
 class HistStackCanvaswRatio: public HistCanvas
@@ -1472,6 +1486,7 @@ public:
       Int_t color = graphInfos_[i].color;
 
       TGraphAsymmErrors *g_ratioTemp = MakeRatioGraph( g_target, g_ref );
+      if( removeRatioErr_ ) RemoveError_Graph(g_ratioTemp);
 
       GraphInfo graphInfoRatio{ g_ratioTemp, legend, color };
       graphInfoRatios_.push_back( graphInfoRatio );
@@ -1551,6 +1566,14 @@ public:
     Double_t errorSquare = ratio_A * ratio_A + ratio_B * ratio_B;
 
     return (A/B) * sqrt(errorSquare);
+  }
+
+private:
+  void RemoveError_Graph(TGraphAsymmErrors* g) {
+    for(Int_t i=0; i<g->GetN(); i++) {
+      g->SetPointEYhigh(i, 0);
+      g->SetPointEYlow(i, 0);
+    }
   }
 };
 

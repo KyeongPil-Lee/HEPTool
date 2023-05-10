@@ -76,6 +76,7 @@ public:
     canvas->SetAutoRangeY();
     if( histName.Contains("mass_inc0jet") ) canvas->SetRangeRatio(0.94, 1.06);
     if( histName.Contains("mass_wide_range_inc0jet") ) canvas->SetRangeRatio(0.7, 1.3);
+    if( histName.Contains("nvtx_inc0jet") ) canvas->SetRangeRatio(0.4, 1.6);
 
     canvas->ShowDataMCRatio();
 
@@ -127,6 +128,7 @@ private:
     if( histName == "mass_wide_range_inc0jet_BB" ) title = "m(ll) [GeV] (Barrel-Barrel)";
     if( histName == "mass_wide_range_inc0jet_BE" ) title = "m(ll) [GeV] (Barrel-Endcap)";
     if( histName == "mass_wide_range_inc0jet_EE" ) title = "m(ll) [GeV] (Endcap-Endcap)";
+    if( histName == "nvtx_inc0jet") title = "# reco. vertices";
 
     if( histName == "pt_inc0jet" ) title = "p_{T}(ll) [GeV]";
 
@@ -181,6 +183,7 @@ private:
     if( tag == "TauTau" ) legend = "Z/#gamma*#rightarrow#tau#tau";
     if( tag == "WJetsToLNu" ) legend = "W+jets";
     if( tag == "VV" ) legend = "VV";
+    if( tag == "GammaGamma" ) legend = "#gamma#gamma#rightarrow ll";
 
     return legend;
   }
@@ -192,6 +195,7 @@ private:
     if( tag == "TauTau" ) color = kCyan + 2;
     if( tag == "WJetsToLNu" ) color = kOrange;
     if( tag == "VV" ) color = kRed + 1;
+    if( tag == "GammaGamma" ) color = kOrange;
 
     return color;
   }

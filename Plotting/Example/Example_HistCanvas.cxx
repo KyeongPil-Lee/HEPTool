@@ -54,7 +54,10 @@ void Example_HistCanvas(TH1D* h1, TH1D* h2, TH1D* h3) {
   canvas->SetAutoRangeY();
 
   canvas->Latex_CMSInternal();
-  canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}");
+  canvas->RegisterLatex(0.16, 0.91, 42, 0.6, "Gaussian distributions"); // arguments: x, y, font type, font size, text
+  // canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}"); // same with above
+
+  // canvas->SetSavePath("./output"); // -- path to be saved (default: "./")
 
   canvas->Draw(); // -- default: .pdf format
 
@@ -83,7 +86,12 @@ void Example_HistCanvaswRatio(TH1D* h1, TH1D* h2, TH1D* h3) {
   canvas->SetAutoRangeY();
 
   canvas->Latex_CMSInternal();
-  canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}");
+  canvas->RegisterLatex(0.16, 0.91, 42, 0.6, "Gaussian distributions"); // arguments: x, y, font type, font size, text
+  // canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}"); // same with above
+
+  // canvas->RemoveRatioError(); // remove error in the ratio (useful when the error is meaningless)
+
+  // canvas->SetSavePath("./output"); // -- path to be saved (default: "./")
 
   canvas->Draw();
 
@@ -111,7 +119,10 @@ void Example_HistStackCanvaswRatio(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* h_tot) {
   canvas->ShowDataMCRatio();
 
   canvas->Latex_CMSInternal();
-  canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}");
+  canvas->RegisterLatex(0.16, 0.91, 42, 0.6, "Gaussian distributions"); // arguments: x, y, font type, font size, text
+  // canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}"); // same with above
+
+  // canvas->SetSavePath("./output"); // -- path to be saved (default: "./")
 
   canvas->Draw();
 
@@ -132,6 +143,8 @@ void Example_Hist2DCanvas(TH2D* h2D) {
 
   canvas->Latex_CMSInternal();
   canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Random Gaussian values}}");
+
+  // canvas->SetSavePath("./output"); // -- path to be saved (default: "./")
 
   canvas->Draw();
 

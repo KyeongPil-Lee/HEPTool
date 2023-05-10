@@ -33,6 +33,8 @@ void Example_GraphCanvas(TGraphAsymmErrors* g1, TGraphAsymmErrors* g2, TGraphAsy
   canvas->Register(g2, "g2", kBlue);
   canvas->Register(g3, "g3", kGreen+2);
 
+  // canvas->SetMarkerSize(2.0);
+
   canvas->SetLegendPosition(0.70, 0.70, 0.95, 0.95);
 
   // canvas->SetRangeX(minX, maxX);
@@ -40,7 +42,10 @@ void Example_GraphCanvas(TGraphAsymmErrors* g1, TGraphAsymmErrors* g2, TGraphAsy
   canvas->SetAutoRangeY();
 
   canvas->Latex_CMSInternal();
-  canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}");
+  canvas->RegisterLatex(0.16, 0.91, 42, 0.6, "Gaussian distributions"); // arguments: x, y, font type, font size, text
+  // canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}"); // same with above
+
+  // canvas->SetSavePath("./output"); // -- path to be saved (default: "./")
 
   canvas->Draw();
 
@@ -69,7 +74,12 @@ void Example_GraphCanvaswRatio(TGraphAsymmErrors* g1, TGraphAsymmErrors* g2, TGr
   canvas->SetAutoRangeY();
 
   canvas->Latex_CMSInternal();
-  canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}");
+  canvas->RegisterLatex(0.16, 0.91, 42, 0.6, "Gaussian distributions"); // arguments: x, y, font type, font size, text
+  // canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}"); // same with above
+
+  // canvas->RemoveRatioError(); // remove error in the ratio (useful when the error is meaningless)
+
+  // canvas->SetSavePath("./output"); // -- path to be saved (default: "./")
 
   canvas->Draw();
 

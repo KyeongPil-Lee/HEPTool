@@ -77,6 +77,37 @@ TGraphAsymmErrors* Get_Graph(TString fileName, TString graphName, TString graphN
   return g_temp;
 }
 
+TH1D* MakeHist_fromVector(TString histName, vector<Double_t> vec_binEdge)
+{
+  Int_t nBin = (Int_t)vec_binEdge.size()-1; // -- # bins = # bin edges - 1
+
+  Double_t* arr_binEdge = new Double_t[nBin+1];
+  std::copy(vec_binEdge.begin(), vec_binEdge.end(), arr_binEdge);
+  // for(Int_t i=0; i<nBin+1; i++)
+  //   arr_binEdge[i] = vec_binEdge[i]; // -- or use std::copy( vec_binEdge.begin(), vec_binEdge.end(), arr_binEdge);
+
+  return new TH1D(histName, "", nBin, arr_binEdge);
+}
+
+TH2D* MakeHist2D_fromVector(TString histName, vector<Double_t> vec_binEdgeX, vector<Double_t> vec_binEdgeY)
+{
+  Int_t nBinX = (Int_t)vec_binEdgeX.size()-1; // -- # bins = # bin edges - 1
+
+  Double_t* arr_binEdgeX = new Double_t[nBinX+1];
+  std::copy(vec_binEdgeX.begin(), vec_binEdgeX.end(), arr_binEdgeX);
+  // for(Int_t i=0; i<nBinX+1; i++)
+  //   arr_binEdgeX[i] = vec_binEdgeX[i];
+
+  Int_t nBinY = (Int_t)vec_binEdgeY.size()-1; // -- # bins = # bin edges - 1
+
+  Double_t* arr_binEdgeY = new Double_t[nBinY+1];
+  std::copy(vec_binEdgeY.begin(), vec_binEdgeY.end(), arr_binEdgeY);
+  // for(Int_t i=0; i<nBinY+1; i++)
+  //   arr_binEdgeY[i] = vec_binEdgeY[i];
+
+  return new TH2D(histName, "", nBinX, arr_binEdgeX, nBinY, arr_binEdgeY);
+}
+
 void SetLegend( TLegend *& legend, Double_t xMin = 0.75, Double_t yMin = 0.75, Double_t xMax = 0.95, Double_t yMax = 0.95 )
 {
   legend = new TLegend( xMin, yMin, xMax, yMax );

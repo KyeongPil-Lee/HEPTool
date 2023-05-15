@@ -82,3 +82,13 @@ Example codes are available in `Example` directory.
 * `TH2D* Hist2DOperation(TString histName, TH2D* h1, TH2D* h2, TString operation)`
   * same with above, but for 2D
   * Warning: curerntly, the errors are not properly propagated now (the error is set to 0)
+<br>
+
+* `TH1D* MakeHist_fromVector(TString histName, vector<Double_t> vec_binEdge)`
+  * make TH1D* using vector, not array for binning
+<br>
+
+* `TH2D* MakeHist2D_fromVector(TString histName, vector<Double_t> vec_binEdgeX, vector<Double_t> vec_binEdgeY)`
+  * make TH2D* using vector, not array for binning
+<br>
+

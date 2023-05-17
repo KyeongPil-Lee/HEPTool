@@ -259,7 +259,7 @@ Bool_t IsRatio1( TH1D* h1, TH1D* h2)
 
     if( fabs(ratio - 1) > 1e-5 )
     {
-      printf("[%02d bin is deviated from 1]\n", i_bin);
+      printf("[%02d bin (%.1lf, %.1lf) is deviated from 1]\n", i_bin, h1->GetBinLowEdge(i_bin), h1->GetBinLowEdge(i_bin+1));
       printf("   Bin content1 = %lf\n", content1);
       printf("   Bin content2 = %lf\n", content2);
       printf("          Ratio = %lf\n\n", ratio);

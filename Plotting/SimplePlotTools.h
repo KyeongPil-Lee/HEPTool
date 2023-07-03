@@ -20,6 +20,7 @@ namespace PlotTool {
 
 // -- terminate ROOT if the given file or object is not found
 // -- return TFile* if it pass the check
+// -- UPDATE: it does not work if a histogram is under sub-directory of the root file
 TFile* ExistenceCheck(TString functionName, TString fileName, TString objectName) {
   if( gSystem->AccessPathName(fileName) ) {
     cout << "*** [PlotTool::" << functionName << "] fileName = [" << fileName << "]: not found ***" << endl;
@@ -1727,6 +1728,86 @@ private:
     h2D_->GetZaxis()->SetRangeUser( minZ, maxZ );
   }
 
+};
+
+// -- hold plotting information
+class PlotAttr {
+public:
+  PlotAttr() {}
+  PlotAttr(TString histName) { Set_HistName(histName); }
+  PlotAttr(const PlotAttr& plotAttr) {
+    histName_ = plotAttr.histName_;
+
+    setRangeX_ = plotAttr.setRangeX_;
+    minX_ = plotAttr.minX_;
+    maxX_ = plotAttr.maxX_;
+
+    setRangeY_ = plotAttr.setRangeY_;
+    minY_ = plotAttr.minY_;
+    maxY_ = plotAttr.maxY_;
+
+    titleX_ = plotAttr.titleX_;
+    titleY_ = plotAttr.titleY_;
+
+    info1_ = plotAttr.info1_;
+    info2_ = plotAttr.info2_;
+
+  }
+
+  void Set_HistName(TString histName) { histName_ = histName; }
+
+  void Set_RangeX(Double_t minX, Double_t maxX) {
+    setRangeX_ = kTRUE;
+    minX_ = minX;
+    maxX_ = maxX;
+  }
+
+  void Set_RangeY(Double_t minY, Double_t maxY) {
+    setRangeY_ = kTRUE;
+    minY_ = minY;
+    maxY_ = maxY;
+  }
+
+  void Set_TitleX(TString title) { titleX_ = title; }
+  void Set_TitleY(TString title) { titleY_ = title; }
+
+  void Set_Info1(TString info) { info1_ = info; }
+  void Set_Info2(TString info) { info2_ = info; }
+
+  TString histName() { return histName_; }
+
+  Bool_t hasRatioX() { return setRangeX_; }
+  Double_t minX() { return minX_; }
+  Double_t maxX() { return maxX_; }
+
+  Bool_t hasRatioY() { return setRangeY_; }
+  Double_t minY() { return minY_; }
+  Double_t maxY() { return maxY_; }
+
+  TString titleX() { return titleX_; };
+  TString titleY() { return titleY_; };
+
+  
+  TString info1() { return info1_; };
+  TString info2() { return info2_; };
+
+private:
+  TString histName_ = "";
+
+  Bool_t setRangeX_ = kFALSE;
+  Double_t minX_ = 0;
+  Double_t maxX_ = 0;
+
+  Bool_t setRangeY_ = kFALSE;
+  Double_t minY_ = 0;
+  Double_t maxY_ = 0;
+
+  TString titleX_ = "undefined";
+  TString titleY_ = "undefined";
+
+  // -- user-defined info
+  TString info1_ = "";
+  TString info2_ = "";
 };
 
 }; // -- namespace PlotTool

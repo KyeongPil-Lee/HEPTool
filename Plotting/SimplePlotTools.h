@@ -1746,9 +1746,21 @@ public:
     minY_ = plotAttr.minY_;
     maxY_ = plotAttr.maxY_;
 
+    setRangeZ_ = plotAttr.setRangeZ_;
+    minZ_ = plotAttr.minZ_;
+    maxZ_ = plotAttr.maxZ_;
+
+    setRangeRatio_ = plotAttr.setRangeRatio_;
+    minRatio_ = plotAttr.minRatio_;
+    maxRatio_ = plotAttr.maxRatio_;
+
     titleX_ = plotAttr.titleX_;
     titleY_ = plotAttr.titleY_;
+    titleZ_ = plotAttr.titleZ_;
+    titleRatio_ = plotAttr.titleRatio_;
 
+    vec_info_ = plotAttr.vec_info_;
+    // -- legacy
     info1_ = plotAttr.info1_;
     info2_ = plotAttr.info2_;
 
@@ -1768,9 +1780,26 @@ public:
     maxY_ = maxY;
   }
 
+  void Set_RangeZ(Double_t minZ, Double_t maxZ) {
+    setRangeZ_ = kTRUE;
+    minZ_ = minZ;
+    maxZ_ = maxZ;
+  }
+
+  void Set_RangeRatio(Double_t minRatio, Double_t maxRatio) {
+    setRangeRatio_ = kTRUE;
+    minRatio_ = minRatio;
+    maxRatio_ = maxRatio;
+  }
+
   void Set_TitleX(TString title) { titleX_ = title; }
   void Set_TitleY(TString title) { titleY_ = title; }
+  void Set_TitleZ(TString title) { titleZ_ = title; }
+  void Set_TitleRatio(TString title) { titleRatio_ = title; }
 
+  void Set_Info(TString info) { vec_info_.push_back(info); }
+
+  // -- legacy
   void Set_Info1(TString info) { info1_ = info; }
   void Set_Info2(TString info) { info2_ = info; }
 
@@ -1784,10 +1813,22 @@ public:
   Double_t minY() { return minY_; }
   Double_t maxY() { return maxY_; }
 
+  Bool_t hasRatioZ() { return setRangeZ_; }
+  Double_t minZ() { return minZ_; }
+  Double_t maxZ() { return maxZ_; }
+
+  Bool_t hasRatioRatio() { return setRangeRatio_; }
+  Double_t minRatio() { return minRatio_; }
+  Double_t maxRatio() { return maxRatio_; }
+
   TString titleX() { return titleX_; };
   TString titleY() { return titleY_; };
+  TString titleZ() { return titleZ_; };
+  TString titleRatio() { return titleRatio_; };
 
-  
+  TString info(UInt_t index) { return vec_info_[index]; }
+
+  // -- legacy
   TString info1() { return info1_; };
   TString info2() { return info2_; };
 
@@ -1802,10 +1843,23 @@ private:
   Double_t minY_ = 0;
   Double_t maxY_ = 0;
 
+  Bool_t setRangeZ_ = kFALSE;
+  Double_t minZ_ = 0;
+  Double_t maxZ_ = 0;
+
+  Bool_t setRangeRatio_ = kFALSE;
+  Double_t minRatio_ = 0;
+  Double_t maxRatio_ = 0;
+
   TString titleX_ = "undefined";
   TString titleY_ = "undefined";
+  TString titleZ_ = "undefined";
+  TString titleRatio_ = "undefined";
 
   // -- user-defined info
+  vector<TString> vec_info_;
+
+  // -- legacy
   TString info1_ = "";
   TString info2_ = "";
 };

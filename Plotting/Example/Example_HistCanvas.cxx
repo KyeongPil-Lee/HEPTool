@@ -84,7 +84,8 @@ void Example_HistCanvaswRatio(TH1D* h1, TH1D* h2, TH1D* h3) {
   // canvas->SetRangeY(minY, maxY);
   // canvas->SetRangeRatio(minRatio, maxRatio);
   canvas->SetAutoRangeY();
-
+  canvas->SetAutoRangeRatio();
+  
   canvas->Latex_CMSInternal();
   canvas->RegisterLatex(0.16, 0.91, 42, 0.6, "Gaussian distributions"); // arguments: x, y, font type, font size, text
   // canvas->RegisterLatex(0.16, 0.91, "#font[42]{#scale[0.6]{Gaussian distributions}}"); // same with above
@@ -115,6 +116,7 @@ void Example_HistStackCanvaswRatio(TH1D* h1, TH1D* h2, TH1D* h3, TH1D* h_tot) {
   // canvas->SetRangeY(minY, maxY);
   // canvas->SetRangeRatio(minRatio, maxRatio);
   canvas->SetAutoRangeY();
+  canvas->SetAutoRangeRatio();
 
   canvas->ShowDataMCRatio();
 

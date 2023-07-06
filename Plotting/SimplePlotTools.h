@@ -579,6 +579,8 @@ public:
   // -- for auto-adjustment of y-axis
   Bool_t setAutoRangeY_;
 
+  Bool_t setAutoRangeRatio_ = kFALSE;
+
   Bool_t setMarkerSize_ = kFALSE;
   Double_t markerSize_ = 1.3;
 
@@ -664,6 +666,11 @@ public:
   void SetAutoRangeY( Bool_t value = kTRUE )
   {
     setAutoRangeY_ = value;
+  }
+
+  void SetAutoRangeRatio( Bool_t value = kTRUE )
+  {
+    setAutoRangeRatio_ = value;
   }
 
   void Latex_CMSPre()
@@ -982,6 +989,25 @@ public:
     if( minY_ == 0 && isLogY_ ) minY_ = 0.5;
     if( isLogY_ ) maxY_ = globalMax * 1e2;
   }
+
+  // -- for auto adjustment of ratio-range (for the inherit classes)
+  void CalcAutoRangeRatio(vector<HistInfo> vec_histInfo)
+  {
+    setRangeRatio_ = kTRUE; // -- turn on
+
+    Double_t globalMin = 9999;
+    Double_t globalMax = -9999;
+    for(const auto& histInfo : vec_histInfo )
+    {
+      Double_t localMin = histInfo.h->GetBinContent(histInfo.h->GetMinimumBin());
+      Double_t localMax = histInfo.h->GetBinContent(histInfo.h->GetMaximumBin());
+      if( localMin < globalMin ) globalMin = localMin;
+      if( localMax > globalMax ) globalMax = localMax;
+    }
+
+    minRatio_ = globalMin < 0.3 ? 0 : globalMin*0.9;
+    maxRatio_ = globalMax * 1.1;
+  }
 }; // -- class HistCanvas
 
 class HistCanvaswRatio: public HistCanvas
@@ -1067,6 +1093,7 @@ public:
       h_ratio->SetTitle("");
       if( i == 0 ) SetAxis_BottomPad(h_ratio->GetXaxis(), h_ratio->GetYaxis(), titleX_, titleRatio_);
       if( setRangeX_ )     h_ratio->GetXaxis()->SetRangeUser( minX_, maxX_ );
+      if( setAutoRangeRatio_ ) CalcAutoRangeRatio(histInfoRatios_);
       if( setRangeRatio_ ) h_ratio->GetYaxis()->SetRangeUser( minRatio_, maxRatio_ );
     }
 
@@ -1106,7 +1133,6 @@ private:
       h->SetBinError(i+1, 0);
     }
   }
-
 };
 
 class HistStackCanvaswRatio: public HistCanvas
@@ -1199,6 +1225,14 @@ public:
     h_ratio_dataToStack_->SetFillColorAlpha(kWhite, 0); 
     h_ratio_dataToStack_->SetTitle("");
     PlotTool::SetAxis_BottomPad(h_ratio_dataToStack_->GetXaxis(), h_ratio_dataToStack_->GetYaxis(), titleX_, titleRatio_);
+
+    if( setAutoRangeRatio_ ) {
+      vector<HistInfo> vec_histInfoRatio; // -- dummy vector for HistInfo to use CalcAutoRangeRatio function
+      HistInfo histInfo_ratio;
+      histInfo_ratio.h = (TH1D*)h_ratio_dataToStack_->Clone();
+      vec_histInfoRatio.push_back( histInfo_ratio );
+      CalcAutoRangeRatio(vec_histInfoRatio);
+    }
     if( setRangeRatio_ ) h_ratio_dataToStack_->GetYaxis()->SetRangeUser( minRatio_, maxRatio_ );
 
     TF1 *f_line;
